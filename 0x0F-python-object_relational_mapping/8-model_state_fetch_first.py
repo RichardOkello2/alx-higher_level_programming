@@ -1,29 +1,22 @@
 #!/usr/bin/python3
-# This script prints the first State object from the database hbtn_0e_6_usa
-
+# Prints the first State object from the database hbtn_0e_6_usa.
+# Usage: ./8-model_state_fetch_first.py <mysql username> /
+#                                       <mysql password> /
+#                                       <database name>
 import sys
-from model_state import Base, State
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from model_state import State
 
-
-if __name__ == '__main__':
-    username = sys.argv[1]
-    password = sys.argv[2]
-    database_name = sys.argv[3]
-
-    eng = create_engine('mysql+mysqldb://{}:{}@localhost:3306/{}'
-                        .format(username,
-                                password,
-                                database_name),
-                        pool_pre_ping=True)
-    Base.metadata.create_all(eng)
-    Session = sessionmaker(bind=eng)
+if __name__ == "__main__":
+    engine = create_engine("mysql+mysqldb://{}:{}@localhost/{}"
+                           .format(sys.argv[1], sys.argv[2], sys.argv[3]),
+                           pool_pre_ping=True)
+    Session = sessionmaker(bind=engine)
     session = Session()
 
-    res = session.query(State).first()
-    if res:
-        print("1: " + res.name)
-    else:
+    state = session.query(State).order_by(State.id).first()
+    if state is None:
         print("Nothing")
-    session.close()
+    else:
+        print("{}: {}".format(state.id, state.name))
